@@ -97,21 +97,22 @@ class LabelingInterface:
         label_frame = ttk.LabelFrame(nav_frame, text="Image Label")
         label_frame.grid(row=0, column=1, padx=20)
         
-        ttk.Radiobutton(
-            label_frame,
-            text="Live",
-            value="0",  # Changed to 0 for Live
-            variable=self.label_var,
-            command=self.on_label_change
-        ).grid(row=0, column=0, padx=10)
+        # Add all four label options
+        labels = [
+            ("Live", "0"),
+            ("Fake", "1"),
+            ("Uncertain", "2"),
+            ("Other", "3")
+        ]
         
-        ttk.Radiobutton(
-            label_frame,
-            text="Fake",
-            value="1",  # Changed to 1 for Fake
-            variable=self.label_var,
-            command=self.on_label_change
-        ).grid(row=0, column=1, padx=10)
+        for i, (text, value) in enumerate(labels):
+            ttk.Radiobutton(
+                label_frame,
+                text=text,
+                value=value,
+                variable=self.label_var,
+                command=self.on_label_change
+            ).grid(row=0, column=i, padx=10)
         
         self.next_btn = ttk.Button(nav_frame, text="Next", command=self.on_next)
         self.next_btn.grid(row=0, column=2, padx=5)
@@ -133,8 +134,11 @@ class LabelingInterface:
         """Bind keyboard shortcuts."""
         self.root.bind('<Left>', lambda e: self.on_previous())
         self.root.bind('<Right>', lambda e: self.on_next())
+        # Update keyboard shortcuts for all labels
         self.root.bind('0', lambda e: self.label_var.set("0"))  # Live
         self.root.bind('1', lambda e: self.label_var.set("1"))  # Fake
+        self.root.bind('2', lambda e: self.label_var.set("2"))  # Uncertain
+        self.root.bind('3', lambda e: self.label_var.set("3"))  # Other
         
     def update_display(self, image: Optional[Image.Image] = None):
         """Update the UI with current image and label information."""

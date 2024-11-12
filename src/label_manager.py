@@ -6,15 +6,18 @@ from typing import Dict, Tuple, Optional, Union
 class LabelManager:
     """Manages the storage and retrieval of image labels."""
     
+    # Label values:
+    # 0 for Live (default)
+    # 1 for Fake
+    # 2 for Uncertain
+    # 3 for Other
+    
     def __init__(self, csv_path: Union[str, Path]):
         """
         Initialize the LabelManager with a path to the CSV file.
         
         Args:
             csv_path: Path to the CSV file for storing labels
-            Note: Label values are:
-                0 for Live (default)
-                1 for Fake
         """
         self.csv_path = Path(csv_path)
         self.labels: Dict[str, str] = {}  # Dictionary to cache labels
@@ -53,7 +56,7 @@ class LabelManager:
         Args:
             image_path: Path to the image file
             parent_directory: Parent directory of the image
-            label: Label value (0 for Live, 1 for Fake)
+            label: Label value (0:Live, 1:Fake, 2:Uncertain, 3:Other)
             auto_save: Whether this is an automatic save of default value
             
         Raises:
