@@ -12,6 +12,9 @@ class LabelManager:
         
         Args:
             csv_path: Path to the CSV file for storing labels
+            Note: Label values are:
+                0 for Live (default)
+                1 for Fake
         """
         self.csv_path = Path(csv_path)
         self.labels: Dict[str, str] = {}  # Dictionary to cache labels
@@ -41,16 +44,17 @@ class LabelManager:
                         self.labels[row['image_path']] = row['label']
         except (IOError, csv.Error) as e:
             raise RuntimeError(f"Error loading labels: {str(e)}")
-            
+    
     def save_label(self, image_path: Union[str, Path], parent_directory: Union[str, Path], 
-                   label: Union[str, int]) -> None:
+                   label: Union[str, int], auto_save: bool = False) -> None:
         """
         Save a new label or update existing label.
         
         Args:
             image_path: Path to the image file
             parent_directory: Parent directory of the image
-            label: Label value (0 for Fake, 1 for Live)
+            label: Label value (0 for Live, 1 for Fake)
+            auto_save: Whether this is an automatic save of default value
             
         Raises:
             RuntimeError: If there's an error saving to the CSV file
@@ -59,6 +63,10 @@ class LabelManager:
         parent_dir_str = str(Path(parent_directory))
         label_str = str(label)
         
+        # Don't overwrite existing labels with auto-save
+        if auto_save and image_path_str in self.labels:
+            return
+            
         # Update cache
         self.labels[image_path_str] = label_str
         
@@ -98,7 +106,7 @@ class LabelManager:
         except (IOError, csv.Error) as e:
             raise RuntimeError(f"Error saving label: {str(e)}")
             
-    def get_label(self, image_path: Union[str, Path]) -> Optional[str]:
+    def get_label(self, image_path: Union[str, Path]) -> str:
         """
         Retrieve the label for a given image.
         
@@ -106,9 +114,9 @@ class LabelManager:
             image_path: Path to the image file
             
         Returns:
-            Label string if found, None otherwise
+            Label string, defaults to "0" (Live) if not found
         """
-        return self.labels.get(str(Path(image_path)))
+        return self.labels.get(str(Path(image_path)), "0")  # Default to Live (0)
         
     def get_progress(self) -> Tuple[int, int]:
         """

@@ -12,7 +12,7 @@ class LabelingInterface:
         self.image_handler = image_handler
         self.label_manager = label_manager
         self.current_photo = None  # Keep reference to prevent garbage collection
-        self.label_var = tk.StringVar(value="")  # For Live/Fake radio buttons
+        self.label_var = tk.StringVar(value="0")  # Default to Live (0)
         self.setup_ui()
         self.bind_shortcuts()
         
@@ -100,7 +100,7 @@ class LabelingInterface:
         ttk.Radiobutton(
             label_frame,
             text="Live",
-            value="1",
+            value="0",  # Changed to 0 for Live
             variable=self.label_var,
             command=self.on_label_change
         ).grid(row=0, column=0, padx=10)
@@ -108,7 +108,7 @@ class LabelingInterface:
         ttk.Radiobutton(
             label_frame,
             text="Fake",
-            value="0",
+            value="1",  # Changed to 1 for Fake
             variable=self.label_var,
             command=self.on_label_change
         ).grid(row=0, column=1, padx=10)
@@ -133,8 +133,8 @@ class LabelingInterface:
         """Bind keyboard shortcuts."""
         self.root.bind('<Left>', lambda e: self.on_previous())
         self.root.bind('<Right>', lambda e: self.on_next())
-        self.root.bind('1', lambda e: self.label_var.set("1"))
-        self.root.bind('0', lambda e: self.label_var.set("0"))
+        self.root.bind('0', lambda e: self.label_var.set("0"))  # Live
+        self.root.bind('1', lambda e: self.label_var.set("1"))  # Fake
         
     def update_display(self, image: Optional[Image.Image] = None):
         """Update the UI with current image and label information."""
@@ -176,14 +176,20 @@ class LabelingInterface:
                 self.path_label.configure(
                     text=f"Directory: {parent_dir}\nImage: {current_path.name}"
                 )
-                # Load existing label if any
-                existing_label = self.label_manager.get_label(current_path)
-                self.label_var.set(existing_label if existing_label else "")
+                # Load existing label if any, defaults to "0" (Live)
+                self.label_var.set(self.label_manager.get_label(current_path))
+                # Auto-save default Live label
+                self.label_manager.save_label(
+                    current_path,
+                    parent_dir,
+                    self.label_var.get(),
+                    auto_save=True
+                )
         else:
             # Clear display if no image
             self.canvas.delete("all")
             self.path_label.configure(text="No image loaded")
-            self.label_var.set("")
+            self.label_var.set("0")  # Default to Live
             
         # Update progress display
         labeled_count, total_count = self.label_manager.get_progress()
