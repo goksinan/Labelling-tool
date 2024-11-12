@@ -1,0 +1,7 @@
+(Attach the wireframe of the app you are trying to build.)
+
+I would like to build a simple python GUI to label some images.
+I will provide the source path where the images are stored.
+The GUI will be automatically iterate through the images and display them one by one.
+The user will be able to click next or previous to navigate through the images.
+When the user moves to the next image, the previous image's label will be saved to a text file.

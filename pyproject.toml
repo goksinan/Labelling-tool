@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "image-labeling-tool"
+version = "0.1.0"
+description = "A tool for efficiently labeling images as Live or Fake"
+package-mode = false
+authors = ["Your Name <your.email@example.com>"]
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Pillow = "^10.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+label-images = "src.main:main"
