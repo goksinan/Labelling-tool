@@ -35,7 +35,7 @@ class LabelManager:
             self.csv_path.parent.mkdir(parents=True, exist_ok=True)
             with open(self.csv_path, 'w', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow(['image_path', 'parent_directory', 'label'])
+                writer.writerow(['image_path', 'label'])
             return
             
         try:
@@ -48,14 +48,13 @@ class LabelManager:
         except (IOError, csv.Error) as e:
             raise RuntimeError(f"Error loading labels: {str(e)}")
     
-    def save_label(self, image_path: Union[str, Path], parent_directory: Union[str, Path], 
-                   label: Union[str, int], auto_save: bool = False) -> None:
+    def save_label(self, image_path: Union[str, Path], label: Union[str, int], 
+                   auto_save: bool = False) -> None:
         """
         Save a new label or update existing label.
         
         Args:
             image_path: Path to the image file
-            parent_directory: Parent directory of the image
             label: Label value (0:Live, 1:Fake, 2:Uncertain, 3:Other)
             auto_save: Whether this is an automatic save of default value
             
@@ -63,7 +62,6 @@ class LabelManager:
             RuntimeError: If there's an error saving to the CSV file
         """
         image_path_str = str(Path(image_path))
-        parent_dir_str = str(Path(parent_directory))
         label_str = str(label)
         
         # Don't overwrite existing labels with auto-save
@@ -86,24 +84,20 @@ class LabelManager:
         updated = False
         for row in existing_data:
             if row['image_path'] == image_path_str:
-                row.update({
-                    'parent_directory': parent_dir_str,
-                    'label': label_str
-                })
+                row['label'] = label_str
                 updated = True
                 break
                 
         if not updated:
             existing_data.append({
                 'image_path': image_path_str,
-                'parent_directory': parent_dir_str,
                 'label': label_str
             })
             
         # Write back to CSV
         try:
             with open(self.csv_path, 'w', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=['image_path', 'parent_directory', 'label'])
+                writer = csv.DictWriter(f, fieldnames=['image_path', 'label'])
                 writer.writeheader()
                 writer.writerows(existing_data)
         except (IOError, csv.Error) as e:

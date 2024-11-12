@@ -185,7 +185,6 @@ class LabelingInterface:
                 # Auto-save default Live label
                 self.label_manager.save_label(
                     current_path,
-                    parent_dir,
                     self.label_var.get(),
                     auto_save=True
                 )
@@ -224,12 +223,11 @@ class LabelingInterface:
             
     def on_label_change(self):
         """Handle label selection change."""
-        current_path, parent_dir = self.image_handler.get_current_image_info()
+        current_path, _ = self.image_handler.get_current_image_info()
         if current_path and self.label_var.get():
             try:
                 self.label_manager.save_label(
                     current_path,
-                    parent_dir,
                     self.label_var.get()
                 )
                 self.update_display(self.image_handler.current_image)
