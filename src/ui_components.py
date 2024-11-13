@@ -168,8 +168,10 @@ class LabelingInterface:
     def update_display(self, image: Optional[Image.Image] = None):
         """Update the UI with current image and label information."""
         if image:
-            # Convert PIL image to PhotoImage and keep reference
-            # Calculate scaling factor to fit in canvas
+            # Force the canvas to update its size before proceeding
+            self.root.update_idletasks()  # Update the entire window instead of just canvas
+
+            # Get canvas dimensions after ensuring it's properly sized
             canvas_width = self.canvas.winfo_width()
             canvas_height = self.canvas.winfo_height()
             
@@ -187,18 +189,19 @@ class LabelingInterface:
             
             self.current_photo = ImageTk.PhotoImage(image)
             
-            # Update canvas
+            # Clear canvas and set proper scrollregion first
             self.canvas.delete("all")
-            self.canvas.create_image(
-                canvas_width // 2,
-                canvas_height // 2,
-                anchor="center",
-                image=self.current_photo
-            )
             
-            # Update scrollregion
-            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+            # Calculate center position
+            x = max(0, (canvas_width - self.current_photo.width()) // 2)
+            y = max(0, (canvas_height - self.current_photo.height()) // 2)
             
+            # Create image at calculated position
+            self.canvas.create_image(x, y, anchor="nw", image=self.current_photo)
+            
+            # Set scrollregion to full canvas size
+            self.canvas.configure(scrollregion=(0, 0, canvas_width, canvas_height))
+
             # Update path label and load existing label
             current_path, parent_dir = self.image_handler.get_current_image_info()
             if current_path:

@@ -18,26 +18,9 @@ class ImageLabelingApp:
         self.image_handler = None
         self.ui = None
         
-        # Set default CSV path in the same directory as the script
-        self.default_csv_path = Path(__file__).parent / "image_labels.csv"
-        
     def setup(self):
-        """Initialize all components and setup the main application."""
-        try:
-            # Initialize core components
-            self.label_manager = LabelManager(self.default_csv_path)
-            self.image_handler = ImageHandler()
-            
-            # Initialize UI after core components
-            self.ui = LabelingInterface(self.root, self.image_handler, self.label_manager)
-            
-            # Create menu bar
-            self.create_menu()
-            
-            # Configure window behavior
-            self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
-            self.root.geometry("1024x768")
-            
+        """Initialize minimal components and prompt for directory."""
+        try:            
             # Show initial directory selection dialog
             self.prompt_directory_selection()
             
@@ -45,6 +28,44 @@ class ImageLabelingApp:
             messagebox.showerror("Initialization Error", f"Failed to initialize application: {str(e)}")
             self.root.destroy()
             raise
+
+    def initialize_components(self, directory: str):
+        """Initialize components after directory selection."""
+        try:
+            # Set CSV path in the selected directory
+            csv_path = Path(directory) / "image_labels.csv"
+            
+            # Check if CSV exists and prompt user
+            if csv_path.exists():
+                proceed = messagebox.askquestion(
+                    "Warning",
+                    "image_labels.csv already exists in this directory. It will be modified. Do you want to proceed?",
+                    icon='warning'
+                )
+                if proceed == 'no':
+                    self.root.destroy()
+                    return False
+            
+            # Initialize core components
+            self.label_manager = LabelManager(csv_path)
+            self.image_handler = ImageHandler()
+            
+            # Initialize UI after core components
+            self.ui = LabelingInterface(self.root, self.image_handler, self.label_manager)
+
+            # Create menu bar
+            self.create_menu()
+
+            # Configure window behavior
+            self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+            self.root.geometry("1024x768")
+        
+        except Exception as e:
+            messagebox.showerror(
+                "Initialization Error",
+                f"Failed to initialize components: {str(e)}"
+            )
+            return False
             
     def create_menu(self):
         """Create the application menu bar."""
@@ -80,6 +101,9 @@ class ImageLabelingApp:
             mustexist=True
         )
         
+        # Initialize components
+        self.initialize_components(directory)
+
         if directory:
             try:
                 # Scan directory for images
