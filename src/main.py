@@ -18,12 +18,23 @@ class ImageLabelingApp:
         self.image_handler = None
         self.ui = None
         
-        # Set default CSV path in the same directory as the script
-        self.default_csv_path = Path(__file__).parent / "image_labels.csv"
+        # Set CSV path one level up from src directory
+        self.default_csv_path = Path(__file__).parent.parent / "image_labels.csv"
         
     def setup(self):
         """Initialize all components and setup the main application."""
         try:
+            # Check if CSV file exists and prompt user
+            if self.default_csv_path.exists():
+                proceed = messagebox.askquestion(
+                    "Warning",
+                    f"{self.default_csv_path} already exists! It will be modified. Do you want to proceed?",
+                    icon='warning'
+                )
+                if proceed == 'no':
+                    self.root.destroy()
+                    return False
+
             # Initialize core components
             self.label_manager = LabelManager(self.default_csv_path)
             self.image_handler = ImageHandler()
