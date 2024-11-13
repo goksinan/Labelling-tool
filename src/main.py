@@ -115,8 +115,12 @@ class ImageLabelingApp:
             "Keyboard Shortcuts:\n"
             "← Previous Image\n"
             "→ Next Image\n"
-            "1 Label as Live\n"
-            "0 Label as Fake"
+            "0 Label as Live\n"
+            "1 Label as Fake\n"
+            "2 Label as Uncertain\n"
+            "3 Label as Other\n"
+            "O Show Original Image\n"
+            "E Show Enhanced Image"
         )
         
     def on_closing(self):

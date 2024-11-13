@@ -76,13 +76,13 @@ class LabelingInterface:
         
         ttk.Button(
             enhancement_frame,
-            text="Original",
+            text="Original (O)",
             command=self.show_original
         ).grid(row=0, column=0, padx=5)
         
         ttk.Button(
             enhancement_frame,
-            text="Enhanced",
+            text="Enhanced (E)",
             command=self.show_enhanced
         ).grid(row=0, column=1, padx=5)
         
@@ -150,11 +150,15 @@ class LabelingInterface:
         """Bind keyboard shortcuts."""
         self.root.bind('<Left>', lambda e: self.on_previous())
         self.root.bind('<Right>', lambda e: self.on_next())
-        # Update keyboard shortcuts to also trigger label change
         self.root.bind('0', lambda e: self.set_label("0"))
         self.root.bind('1', lambda e: self.set_label("1"))
         self.root.bind('2', lambda e: self.set_label("2"))
         self.root.bind('3', lambda e: self.set_label("3"))
+        
+        self.root.bind('o', lambda e: self.show_original())
+        self.root.bind('O', lambda e: self.show_original())
+        self.root.bind('e', lambda e: self.show_enhanced())
+        self.root.bind('E', lambda e: self.show_enhanced())
 
     def set_label(self, value):
         """Helper method to update label via keyboard shortcut."""
