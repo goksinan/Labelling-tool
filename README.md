@@ -1,12 +1,15 @@
 # Image Labeling Tool
 
-A Python-based GUI application for efficiently labeling images as "Live" or "Fake". The tool provides an intuitive interface for navigating through images in a directory structure, applying labels, and saving them to a CSV file.
+A Python-based GUI application for efficiently labeling images as "Live", "Fake", "Uncertain", or "Other". The tool provides an intuitive interface for navigating through images in a directory structure, applying labels, and saving them to a CSV file.
 
 ## Features
 
 - Simple and efficient interface for image labeling
-- Support for common image formats (jpg, jpeg, png, bmp, gif)
-- Contrast adjustment for better image viewing
+- Support for common image formats (jpg, jpeg, jp2, png, bmp, gif)
+- Image enhancement capabilities:
+  - Contrast adjustment
+  - CLAHE enhancement
+  - Unsharp masking
 - Keyboard shortcuts for quick navigation and labeling
 - Automatic progress tracking and label persistence
 - CSV-based storage of image labels
@@ -15,8 +18,10 @@ A Python-based GUI application for efficiently labeling images as "Live" or "Fak
 
 - Python 3.8 or higher
 - Poetry for dependency management
-- Pillow (PIL) for image processing
-- tkinter (usually comes with Python)
+- Required packages (automatically installed):
+  - Pillow (PIL) for image processing
+  - OpenCV for image enhancement
+  - tkinter (usually comes with Python)
 
 ## Installation
 
@@ -35,30 +40,38 @@ poetry install
 
 1. Start the application:
 ```bash
-poetry run label-images
+poetry shell
+python src/main.py
 ```
 
 2. Select a directory containing images when prompted
 3. Use the interface to navigate and label images:
    - Click "Previous" or "Next" (or use ← → arrow keys)
-   - Select "Live" or "Fake" (or use 1/0 keys)
-   - Adjust contrast using the slider if needed
+   - Select label type (or use keyboard shortcuts)
+   - Use enhancement options and contrast slider if needed
 
-Labels are automatically saved to `image_labels.csv` in the project directory.
+Labels are automatically saved to `image_labels.csv` in the selected directory.
 
 ### Keyboard Shortcuts
 
 - `←` Previous image
 - `→` Next image
-- `1` Label as Live
-- `0` Label as Fake
+- `0` Label as Live
+- `1` Label as Fake
+- `2` Label as Uncertain
+- `3` Label as Other
+- `O` Show Original Image
+- `E` Show Enhanced Image
 
 ## Output Format
 
 The tool saves labels in a CSV file with the following columns:
 - `image_path`: Full path to the image file
-- `parent_directory`: Directory containing the image
-- `label`: 1 for Live, 0 for Fake
+- `label`: 
+  - 0 for Live (default)
+  - 1 for Fake
+  - 2 for Uncertain
+  - 3 for Other
 
 ## Project Structure
 
@@ -69,7 +82,7 @@ image-labeling-tool/
 │   ├── image_handler.py  # Image processing logic
 │   ├── ui_components.py  # UI implementation
 │   └── label_manager.py  # Label management
-├── image_labels.csv      # Generated label storage
+├── image_labels.csv      # Generated label storage (will be created in selected directory)
 ├── pyproject.toml        # Project dependencies
 └── README.md            # This file
 ```
