@@ -134,12 +134,17 @@ class LabelingInterface:
         """Bind keyboard shortcuts."""
         self.root.bind('<Left>', lambda e: self.on_previous())
         self.root.bind('<Right>', lambda e: self.on_next())
-        # Update keyboard shortcuts for all labels
-        self.root.bind('0', lambda e: self.label_var.set("0"))  # Live
-        self.root.bind('1', lambda e: self.label_var.set("1"))  # Fake
-        self.root.bind('2', lambda e: self.label_var.set("2"))  # Uncertain
-        self.root.bind('3', lambda e: self.label_var.set("3"))  # Other
-        
+        # Update keyboard shortcuts to also trigger label change
+        self.root.bind('0', lambda e: self.set_label("0"))
+        self.root.bind('1', lambda e: self.set_label("1"))
+        self.root.bind('2', lambda e: self.set_label("2"))
+        self.root.bind('3', lambda e: self.set_label("3"))
+
+    def set_label(self, value):
+        """Helper method to update label via keyboard shortcut."""
+        self.label_var.set(value)
+        self.on_label_change()  # Trigger the label change handler
+
     def update_display(self, image: Optional[Image.Image] = None):
         """Update the UI with current image and label information."""
         if image:
@@ -194,8 +199,9 @@ class LabelingInterface:
             self.path_label.configure(text="No image loaded")
             self.label_var.set("0")  # Default to Live
             
-        # Update progress display
-        labeled_count, total_count = self.label_manager.get_progress()
+        # Get total images from image_handler and labeled count from label_manager
+        labeled_count = len(self.label_manager.get_labeled_paths())
+        total_count = len(self.image_handler.image_paths)
         self.progress_label.configure(text=f"{labeled_count}/{total_count} images labeled")
         
     def on_contrast_change(self, value):

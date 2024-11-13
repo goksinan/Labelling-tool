@@ -83,7 +83,8 @@ class ImageLabelingApp:
         if directory:
             try:
                 # Scan directory for images
-                image_count = self.image_handler.scan_directory(directory)
+                labeled_paths = self.label_manager.get_labeled_paths()
+                image_count = self.image_handler.scan_directory(directory, labeled_paths)
                 
                 if image_count == 0:
                     messagebox.showwarning(

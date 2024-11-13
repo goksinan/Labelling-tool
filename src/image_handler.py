@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from PIL import Image, ImageEnhance
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Set
 
 class ImageHandler:
     """Handles image loading, processing, and navigation through the image directory."""
@@ -13,13 +13,15 @@ class ImageHandler:
         self.original_image: Optional[Image.Image] = None  # Store original for contrast adjustments
         self.image_paths: List[Path] = []
         self.current_index: int = -1
+        self.labeled_images: Set[str] = set()  # Track labeled images
         
-    def scan_directory(self, directory_path: str) -> int:
+    def scan_directory(self, directory_path: str, labeled_paths: Set[str]) -> int:
         """
         Scan directory recursively for supported image files.
         
         Args:
             directory_path: Path to the directory to scan
+            labeled_paths: Set of paths that have already been labeled
             
         Returns:
             Number of image files found
@@ -30,6 +32,7 @@ class ImageHandler:
         """
         self.image_paths = []
         self.current_index = -1
+        self.labeled_images = labeled_paths
         
         try:
             for root, _, files in os.walk(directory_path):
@@ -41,6 +44,16 @@ class ImageHandler:
             
         # Sort paths for consistent ordering
         self.image_paths.sort()
+        
+        # Find the first unlabeled image
+        for i, path in enumerate(self.image_paths):
+            if str(path) not in self.labeled_images:
+                self.current_index = i - 1  # Set to one before so next_image() will land on it
+                break
+        else:
+            # If all images are labeled, start from the beginning
+            self.current_index = -1
+            
         return len(self.image_paths)
         
     def load_image(self, image_path: Optional[Path] = None) -> Tuple[Optional[Image.Image], str]:

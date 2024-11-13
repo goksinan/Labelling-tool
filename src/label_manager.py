@@ -1,7 +1,7 @@
 from pathlib import Path
 import csv
 import os
-from typing import Dict, Tuple, Optional, Union
+from typing import Dict, Tuple, Optional, Union, Set
 
 class LabelManager:
     """Manages the storage and retrieval of image labels."""
@@ -133,3 +133,12 @@ class LabelManager:
             Dictionary mapping image paths to their labels
         """
         return self.labels.copy()
+        
+    def get_labeled_paths(self) -> Set[str]:
+        """
+        Get all paths that have been labeled.
+        
+        Returns:
+            Set of paths that have already been labeled
+        """
+        return set(self.labels.keys())
