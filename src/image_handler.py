@@ -2,11 +2,13 @@ import os
 from pathlib import Path
 from PIL import Image, ImageEnhance
 from typing import List, Optional, Tuple, Set
+import cv2
+import numpy as np
 
 class ImageHandler:
     """Handles image loading, processing, and navigation through the image directory."""
     
-    SUPPORTED_FORMATS = ('.jpg', '.jpeg', '.png', '.bmp', '.gif')
+    SUPPORTED_FORMATS = ('.jpg', '.jpeg', '.jp2', '.png', '.bmp', '.gif')
     
     def __init__(self):
         self.current_image: Optional[Image.Image] = None
@@ -151,3 +153,27 @@ class ImageHandler:
             Tuple of (current index + 1, total number of images)
         """
         return self.current_index + 1, len(self.image_paths)
+    
+    def enhance_image(self) -> Optional[Image.Image]:
+        """
+        Enhance image using CLAHE and unsharp masking.
+        """
+        if self.original_image is None:
+            return None
+            
+        # Convert PIL to CV2 format
+        img_cv = cv2.cvtColor(np.array(self.original_image), cv2.COLOR_RGB2LAB)
+        
+        # Apply CLAHE to L channel
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+        img_cv[:,:,0] = clahe.apply(img_cv[:,:,0])
+        
+        # Convert back to RGB
+        enhanced = cv2.cvtColor(img_cv, cv2.COLOR_LAB2RGB)
+        
+        # Apply unsharp masking
+        gaussian = cv2.GaussianBlur(enhanced, (0,0), 2.0)
+        unsharp_mask = cv2.addWeighted(enhanced, 1.5, gaussian, -0.5, 0)
+        
+        # Convert back to PIL
+        return Image.fromarray(unsharp_mask)

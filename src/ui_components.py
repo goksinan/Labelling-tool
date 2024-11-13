@@ -70,9 +70,25 @@ class LabelingInterface:
         controls_frame = ttk.Frame(parent)
         controls_frame.grid(row=2, column=0, sticky="ew", pady=(10, 0))
         
+        # Image enhancement buttons
+        enhancement_frame = ttk.Frame(controls_frame)
+        enhancement_frame.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        
+        ttk.Button(
+            enhancement_frame,
+            text="Original",
+            command=self.show_original
+        ).grid(row=0, column=0, padx=5)
+        
+        ttk.Button(
+            enhancement_frame,
+            text="Enhanced",
+            command=self.show_enhanced
+        ).grid(row=0, column=1, padx=5)
+        
         # Contrast control
         contrast_frame = ttk.Frame(controls_frame)
-        contrast_frame.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        contrast_frame.grid(row=1, column=0, sticky="ew", pady=(0, 10))
         
         ttk.Label(contrast_frame, text="Contrast:").grid(row=0, column=0, padx=(0, 5))
         self.contrast_scale = ttk.Scale(
@@ -87,7 +103,7 @@ class LabelingInterface:
         
         # Navigation and labeling frame
         nav_frame = ttk.Frame(controls_frame)
-        nav_frame.grid(row=1, column=0, sticky="ew")
+        nav_frame.grid(row=2, column=0, sticky="ew")
         
         # Previous/Next buttons
         self.prev_btn = ttk.Button(nav_frame, text="Previous", command=self.on_previous)
@@ -243,3 +259,15 @@ class LabelingInterface:
     def show_error(self, message: str):
         """Display error message to user."""
         tk.messagebox.showerror("Error", message)
+
+    def show_original(self):
+        """Display the original image."""
+        if self.image_handler.original_image:
+            self.update_display(self.image_handler.original_image)
+
+    def show_enhanced(self):
+        """Display the enhanced image."""
+        if self.image_handler.original_image:
+            enhanced_image = self.image_handler.enhance_image()
+            if enhanced_image:
+                self.update_display(enhanced_image)
