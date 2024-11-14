@@ -42,7 +42,7 @@ poetry.lock
 .settings/
 
 # Project specific
-image_labels.csv
+*.csv
 *.jpg
 *.jpeg
 *.png

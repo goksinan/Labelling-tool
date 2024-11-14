@@ -83,6 +83,9 @@ class ImageLabelingApp:
         
         if answer == 'yes':
             self.open_directory()
+        else:
+            self.root.destroy()
+            return
         
     def open_directory(self):
         """Open directory selection dialog and load images from selected directory."""
