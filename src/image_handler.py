@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from PIL import Image, ImageEnhance
 from typing import List, Optional, Tuple, Set
@@ -16,7 +17,15 @@ class ImageHandler:
         self.image_paths: List[Path] = []
         self.current_index: int = -1
         self.labeled_images: Set[str] = set()  # Track labeled images
-        
+
+    def _natural_sort_key(self, path: Path) -> tuple:
+        """
+        Helper function for natural sorting of paths.
+        Splits text into list of strings and numbers for proper sorting.
+        """
+        convert = lambda text: int(text) if text.isdigit() else text.lower()
+        return tuple(convert(c) for c in re.split('([0-9]+)', str(path)))
+
     def scan_directory(self, directory_path: str, labeled_paths: Set[str]) -> int:
         """
         Scan directory recursively for supported image files.
@@ -45,7 +54,7 @@ class ImageHandler:
             raise e
             
         # Sort paths for consistent ordering
-        self.image_paths.sort()
+        self.image_paths.sort(key=self._natural_sort_key)
         
         # Find the first unlabeled image
         for i, path in enumerate(self.image_paths):
