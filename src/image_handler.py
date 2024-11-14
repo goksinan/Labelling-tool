@@ -5,6 +5,7 @@ from PIL import Image, ImageEnhance
 from typing import List, Optional, Tuple, Set
 import cv2
 import numpy as np
+from numpy.fft import fft2, fftshift
 
 class ImageHandler:
     """Handles image loading, processing, and navigation through the image directory."""
@@ -186,3 +187,72 @@ class ImageHandler:
         
         # Convert back to PIL
         return Image.fromarray(unsharp_mask)
+    
+    def get_fft_image(self) -> Optional[Image.Image]:
+        """
+        Generate FFT visualization of the current image.
+        Masks the center (DC component) to make other frequencies more visible.
+        Returns a log-scaled magnitude spectrum as an 8-bit image.
+        """
+        if self.original_image is None:
+            return None
+            
+        # Convert to grayscale numpy array
+        # img_gray = np.array(self.original_image.convert('L'))
+        
+        # Enhance the image and convert grayscale
+        img_enhanced = self.enhance_image()
+        img_gray = np.array(img_enhanced.convert('L'))
+
+        # Create 2D window function
+        def create_2d_window(shape, window_type):
+            if window_type == 'none':
+                return np.ones(shape)
+            window_functions = {
+                'hanning': np.hanning,
+                'hamming': np.hamming,
+                'blackman': np.blackman
+            }
+            if window_type not in window_functions:
+                raise ValueError(f"Unsupported window type: {window_type}")
+            window_func = window_functions[window_type]
+            # Create 2D window by outer product of 1D windows
+            window_rows = window_func(shape[0])
+            window_cols = window_func(shape[1])
+            return np.outer(window_rows, window_cols)
+        
+        # Apply window function
+        window = create_2d_window(img_gray.shape, 'hanning')
+        img_gray = img_gray * window
+
+        # Compute 2D FFT and shift zero frequency to center
+        img_ft = np.fft.ifftshift(img_gray)
+        img_ft = np.fft.fft2(img_ft)
+        img_ft = np.fft.fftshift(img_ft)
+
+        def create_circular_mask(h, w, center=None, radius=None):
+            if center is None:
+                center = (int(w/2), int(h/2))
+            if radius is None:
+                radius = min(center[0], center[1], w-center[0], h-center[1])
+            Y, X = np.ogrid[:h, :w]
+            dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
+            circular_mask = dist_from_center <= radius
+            return circular_mask
+
+        # Create and apply mask
+        H, W = img_gray.shape
+        mask = create_circular_mask(H, W, radius=20)
+        img_ft[mask] = 0
+
+        # Convert to magnitude spectrum
+        magnitude_spectrum = np.abs(img_ft)
+        
+        # Apply log scaling to enhance visibility
+        # magnitude_spectrum = np.log1p(magnitude_spectrum)
+        
+        # Normalize to 0-255 range
+        magnitude_spectrum = ((magnitude_spectrum - magnitude_spectrum.min()) * 255 / 
+                            (magnitude_spectrum.max() - magnitude_spectrum.min()))
+        
+        return Image.fromarray(magnitude_spectrum.astype(np.uint8))

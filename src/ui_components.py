@@ -86,6 +86,12 @@ class LabelingInterface:
             command=self.show_enhanced
         ).grid(row=0, column=1, padx=5)
         
+        ttk.Button(
+            enhancement_frame,
+            text="FFT (F)",
+            command=self.show_fft
+        ).grid(row=0, column=2, padx=5)
+        
         # Contrast control
         contrast_frame = ttk.Frame(controls_frame)
         contrast_frame.grid(row=1, column=0, sticky="ew", pady=(0, 10))
@@ -159,6 +165,8 @@ class LabelingInterface:
         self.root.bind('O', lambda e: self.show_original())
         self.root.bind('e', lambda e: self.show_enhanced())
         self.root.bind('E', lambda e: self.show_enhanced())
+        self.root.bind('f', lambda e: self.show_fft())
+        self.root.bind('F', lambda e: self.show_fft())
 
     def set_label(self, value):
         """Helper method to update label via keyboard shortcut."""
@@ -275,3 +283,10 @@ class LabelingInterface:
             enhanced_image = self.image_handler.enhance_image()
             if enhanced_image:
                 self.update_display(enhanced_image)
+
+    def show_fft(self):
+        """Display the FFT visualization of the image."""
+        if self.image_handler.original_image:
+            fft_image = self.image_handler.get_fft_image()
+            if fft_image:
+                self.update_display(fft_image)
