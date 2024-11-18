@@ -38,12 +38,32 @@ class LabelingInterface:
         self.create_progress_display(main_container)
         
     def create_header(self, parent):
-        """Create the header section with path information."""
+        """Create the header section with path and metrics information."""
         header_frame = ttk.Frame(parent)
         header_frame.grid(row=0, column=0, sticky="ew", pady=(0, 10))
         
-        self.path_label = ttk.Label(header_frame, text="No image loaded")
+        # Left side - path info
+        path_frame = ttk.Frame(header_frame)
+        path_frame.grid(row=0, column=0, sticky="w")
+        
+        self.path_label = ttk.Label(path_frame, text="No image loaded")
         self.path_label.grid(row=0, column=0, sticky="w")
+        
+        # Right side - metrics info
+        metrics_frame = ttk.LabelFrame(header_frame, text="Image Metrics")
+        metrics_frame.grid(row=0, column=1, sticky="e", padx=(20, 0))
+        
+        # Create labels for metrics
+        metrics_labels = ['Lens Score:', 'Focus:', 'Visibility:']
+        self.metric_values = {}
+        
+        metric_font = ('TkDefaultFont', 11)
+        for i, label in enumerate(metrics_labels):
+            ttk.Label(metrics_frame, text=label, font=metric_font).grid(row=i, column=0, sticky="w", padx=5)
+            self.metric_values[label] = ttk.Label(metrics_frame, text="N/A", width=8, anchor="w", font=metric_font)
+            self.metric_values[label].grid(row=i, column=1, sticky="w", padx=5)
+        
+        header_frame.grid_columnconfigure(0, weight=1)
         
     def create_image_display(self, parent):
         """Create the main image display area."""
@@ -207,12 +227,19 @@ class LabelingInterface:
             # Update scrollregion
             self.canvas.configure(scrollregion=self.canvas.bbox("all"))
             
-            # Update path label and load existing label
+            # Update path label and metrics
             current_path, parent_dir = self.image_handler.get_current_image_info()
             if current_path:
                 self.path_label.configure(
                     text=f"Directory: {parent_dir}\nImage: {current_path.name}"
                 )
+                
+                # Update metrics
+                metrics = self.image_handler.get_image_metrics(current_path.name)
+                self.metric_values['Lens Score:'].configure(text=metrics['lens_score'])
+                self.metric_values['Focus:'].configure(text=metrics['focus'])
+                self.metric_values['Visibility:'].configure(text=metrics['visibility'])
+                
                 # Load existing label if any, defaults to "0" (Live)
                 self.label_var.set(self.label_manager.get_label(current_path))
                 # Auto-save default Live label

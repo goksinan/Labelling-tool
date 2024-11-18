@@ -2,22 +2,26 @@ import os
 import re
 from pathlib import Path
 from PIL import Image, ImageEnhance
-from typing import List, Optional, Tuple, Set
+from typing import List, Optional, Tuple, Set, Union
 import cv2
 import numpy as np
 from numpy.fft import fft2, fftshift
+import pandas as pd
 
 class ImageHandler:
     """Handles image loading, processing, and navigation through the image directory."""
     
     SUPPORTED_FORMATS = ('.jpg', '.jpeg', '.jp2', '.png', '.bmp', '.gif')
     
-    def __init__(self):
+    def __init__(self, csv_path: Union[str, Path]):
         self.current_image: Optional[Image.Image] = None
         self.original_image: Optional[Image.Image] = None  # Store original for contrast adjustments
         self.image_paths: List[Path] = []
         self.current_index: int = -1
         self.labeled_images: Set[str] = set()  # Track labeled images
+        self.image_info_df = None
+        self.csv_path = Path(csv_path)
+        self.load_image_info()
 
     def _natural_sort_key(self, path: Path) -> tuple:
         """
@@ -256,3 +260,33 @@ class ImageHandler:
                             (magnitude_spectrum.max() - magnitude_spectrum.min()))
         
         return Image.fromarray(magnitude_spectrum.astype(np.uint8))
+    
+    def load_image_info(self):
+        """Load image information from CSV if it exists."""
+        try:
+            self.image_info_df = pd.read_csv(self.csv_path)
+        except (FileNotFoundError, pd.errors.EmptyDataError):
+            self.image_info_df = None
+            
+    def get_image_metrics(self, image_name: str) -> dict:
+        """Get metrics for the current image from the info CSV."""
+        if self.image_info_df is None:
+            return {
+                'lens_score': 'N/A',
+                'focus': 'N/A',
+                'visibility': 'N/A'
+            }
+            
+        try:
+            row = self.image_info_df[self.image_info_df['file_name'] == image_name].iloc[0]
+            return {
+                'lens_score': f"{row['lens_score']:.1f}",
+                'focus': str(row['focus']),
+                'visibility': str(row['visibility'])
+            }
+        except (KeyError, IndexError):
+            return {
+                'lens_score': 'N/A',
+                'focus': 'N/A',
+                'visibility': 'N/A'
+            }

@@ -20,6 +20,7 @@ class ImageLabelingApp:
         
         # Set CSV path one level up from src directory
         self.default_csv_path = Path(__file__).parent.parent / "image_labels.csv"
+        self.default_csv_path_info = Path(__file__).parent.parent / "image_info.csv"
         
     def setup(self):
         """Initialize all components and setup the main application."""
@@ -37,7 +38,7 @@ class ImageLabelingApp:
 
             # Initialize core components
             self.label_manager = LabelManager(self.default_csv_path)
-            self.image_handler = ImageHandler()
+            self.image_handler = ImageHandler(self.default_csv_path_info)
             
             # Initialize UI after core components
             self.ui = LabelingInterface(self.root, self.image_handler, self.label_manager)
