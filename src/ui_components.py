@@ -143,8 +143,10 @@ class LabelingInterface:
         labels = [
             ("Live", "0"),
             ("Fake", "1"),
-            ("Uncertain", "2"),
-            ("Other", "3")
+            ("Soft", "2"),
+            ("Hard", "3"),
+            ("Uncertain", "4"),
+            ("Other", "5")
         ]
         
         for i, (text, value) in enumerate(labels):
@@ -180,6 +182,8 @@ class LabelingInterface:
         self.root.bind('1', lambda e: self.set_label("1"))
         self.root.bind('2', lambda e: self.set_label("2"))
         self.root.bind('3', lambda e: self.set_label("3"))
+        self.root.bind('4', lambda e: self.set_label("4"))
+        self.root.bind('5', lambda e: self.set_label("5"))
         
         self.root.bind('o', lambda e: self.show_original())
         self.root.bind('O', lambda e: self.show_original())

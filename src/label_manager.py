@@ -9,8 +9,10 @@ class LabelManager:
     # Label values:
     # 0 for Live (default)
     # 1 for Fake
-    # 2 for Uncertain
-    # 3 for Other
+    # 2 for Soft
+    # 3 for Hard
+    # 4 for Uncertain
+    # 5 for Other
     
     def __init__(self, csv_path: Union[str, Path]):
         """
