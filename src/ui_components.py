@@ -141,12 +141,12 @@ class LabelingInterface:
         
         # Add all four label options
         labels = [
-            ("Live", "0"),
-            ("Fake", "1"),
-            ("Soft", "2"),
-            ("Hard", "3"),
-            ("Uncertain", "4"),
-            ("Other", "5")
+            ("Live (0)", "0"),
+            ("Fake (1)", "1"),
+            ("Soft (2)", "2"),
+            ("Hard (3)", "3"),
+            ("Uncertain (4)", "4"),
+            ("Other (5)", "5")
         ]
         
         for i, (text, value) in enumerate(labels):
@@ -258,10 +258,11 @@ class LabelingInterface:
             self.path_label.configure(text="No image loaded")
             self.label_var.set("0")  # Default to Live
             
-        # Get total images from image_handler and labeled count from label_manager
-        labeled_count = len(self.label_manager.get_labeled_paths())
-        total_count = len(self.image_handler.image_paths)
-        self.progress_label.configure(text=f"{labeled_count}/{total_count} images labeled")
+        # Update progress display based on filtered images if in review mode
+        total_count = self.image_handler.get_total_images()
+        labeled_count = self.image_handler.get_current_index() + 1
+        if total_count > 0:  # Only show progress if there are images
+            self.progress_label.configure(text=f"{labeled_count}/{total_count} images")
         
     def on_contrast_change(self, value):
         """Handle contrast slider changes."""

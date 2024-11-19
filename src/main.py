@@ -25,16 +25,14 @@ class ImageLabelingApp:
     def setup(self):
         """Initialize all components and setup the main application."""
         try:
-            # Check if CSV file exists and prompt user
-            if self.default_csv_path.exists():
-                proceed = messagebox.askquestion(
-                    "Warning",
-                    f"{self.default_csv_path} already exists! It will be modified. Do you want to proceed?",
-                    icon='warning'
+            # Check if CSV file exists
+            if not self.default_csv_path.exists():
+                messagebox.showerror(
+                    "Error",
+                    f"No existing labels file found at {self.default_csv_path}"
                 )
-                if proceed == 'no':
-                    self.root.destroy()
-                    return False
+                self.root.destroy()
+                return False
 
             # Initialize core components
             self.label_manager = LabelManager(self.default_csv_path)
@@ -50,8 +48,8 @@ class ImageLabelingApp:
             self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
             self.root.geometry("1024x768")
             
-            # Show initial directory selection dialog
-            self.prompt_directory_selection()
+            # Show mode selection dialog
+            self.prompt_mode_selection()
             
         except Exception as e:
             messagebox.showerror("Initialization Error", f"Failed to initialize application: {str(e)}")
@@ -75,18 +73,78 @@ class ImageLabelingApp:
         menubar.add_cascade(label="Help", menu=help_menu)
         help_menu.add_command(label="About", command=self.show_about)
         
-    def prompt_directory_selection(self):
-        """Show directory selection dialog and load images."""
+    def prompt_mode_selection(self):
+        """Show dialog to choose between directory mode and review mode."""
         answer = messagebox.askquestion(
-            "Select Directory",
-            "Would you like to select a directory containing images to label?"
+            "Select Mode",
+            "Would you like to open a new directory for labeling?\n\n"
+            "Select 'Yes' to choose a directory.\n"
+            "Select 'No' to review existing labeled images."
         )
         
         if answer == 'yes':
             self.open_directory()
         else:
-            self.root.destroy()
-            return
+            self.review_labeled_images()
+
+    def review_labeled_images(self):
+        """Show dialog to select label for review and load matching images."""
+        # Create dialog window
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Select Label to Review")
+        dialog.geometry("300x300")
+        dialog.transient(self.root)
+        dialog.grab_set()
+
+        # Create label selection
+        tk.Label(dialog, text="Select label to review:").pack(pady=10)
+        
+        label_var = tk.StringVar(value="0")
+        labels = [
+            ("Live", "0"),
+            ("Fake", "1"),
+            ("Soft", "2"),
+            ("Hard", "3"),
+            ("Uncertain", "4"),
+            ("Other", "5")
+        ]
+        
+        for text, value in labels:
+            tk.Radiobutton(
+                dialog,
+                text=text,
+                value=value,
+                variable=label_var
+            ).pack()
+
+        def on_confirm():
+            target_label = label_var.get()
+            dialog.destroy()
+            
+            # Get all labeled images and filter for target label
+            labeled_paths = self.label_manager.get_all_labels()
+            image_count = self.image_handler.scan_labeled_images(labeled_paths, target_label)
+            
+            if image_count == 0:
+                messagebox.showwarning(
+                    "No Images Found",
+                    f"No images found with label '{target_label}'"
+                )
+                self.prompt_mode_selection()
+                return
+                
+            # Load first image
+            image, error = self.image_handler.next_image()
+            if error:
+                messagebox.showerror("Error", error)
+            elif image:
+                self.ui.update_display(image)
+
+        tk.Button(
+            dialog,
+            text="Confirm",
+            command=on_confirm
+        ).pack(pady=20)
         
     def open_directory(self):
         """Open directory selection dialog and load images from selected directory."""
@@ -132,8 +190,10 @@ class ImageLabelingApp:
             "→ Next Image\n"
             "0 Label as Live\n"
             "1 Label as Fake\n"
-            "2 Label as Uncertain\n"
-            "3 Label as Other\n"
+            "2 Label as Soft\n"
+            "3 Label as Hard\n"
+            "4 Label as Uncertain\n"
+            "5 Label as Other\n"
             "O Show Original Image\n"
             "E Show Enhanced Image"
         )

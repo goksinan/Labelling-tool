@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 from PIL import Image, ImageEnhance
-from typing import List, Optional, Tuple, Set, Union
+from typing import List, Optional, Tuple, Set, Union, Dict
 import cv2
 import numpy as np
 from numpy.fft import fft2, fftshift
@@ -290,3 +290,20 @@ class ImageHandler:
                 'focus': 'N/A',
                 'visibility': 'N/A'
             }
+    
+    def scan_labeled_images(self, labeled_paths: Dict[str, str], target_label: str) -> int:
+        """Scan labeled images and filter by target label."""
+        self.image_paths = [
+            Path(path) for path, label in labeled_paths.items()
+            if label == target_label
+        ]
+        self.current_index = -1  # Reset index
+        return len(self.image_paths)
+
+    def get_total_images(self) -> int:
+        """Get total number of images in current set."""
+        return len(self.image_paths)
+
+    def get_current_index(self) -> int:
+        """Get current image index."""
+        return self.current_index
