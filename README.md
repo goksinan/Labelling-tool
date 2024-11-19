@@ -8,16 +8,23 @@ A Python-based GUI application for efficiently labeling images. The tool provide
 - Support for multiple label categories:
   - Live (0)
   - Fake (1)
-  - Uncertain (2)
-  - Other (3)
+  - Soft (2)
+  - Hard (3)
+  - Uncertain (4)
+  - Other (5)
 - Support for common image formats (jpg, jpeg, jp2, png, bmp, gif)
 - Image enhancement features:
   - Contrast adjustment
   - CLAHE enhancement
   - Unsharp masking
+  - FFT visualization
+- Two operational modes:
+  - Directory scanning for new labeling
+  - Review mode for existing labels
+- Image metrics display (Lens Score, Focus, Visibility)
 - Keyboard shortcuts for quick navigation and labeling
 - Automatic progress tracking and label persistence
-- CSV-based storage of image labels
+- CSV-based storage of image labels and metrics
 
 ## Requirements
 
@@ -64,16 +71,25 @@ Labels are automatically saved to `image_labels.csv` in the project directory.
 - `→` Next image
 - `0` Label as Live
 - `1` Label as Fake
-- `2` Label as Uncertain
-- `3` Label as Other
+- `2` Label as Soft
+- `3` Label as Hard
+- `4` Label as Uncertain
+- `5` Label as Other
 - `O` Show Original image
 - `E` Show Enhanced image
+- `F` Show FFT visualization
 
 ## Output Format
 
-The tool saves labels in a CSV file with the following columns:
-- `image_path`: Full path to the image file
-- `label`: Label value (0: Live, 1: Fake, 2: Uncertain, 3: Other)
+The tool uses two CSV files:
+- `image_labels.csv`: Stores image labels with columns:
+  - `image_path`: Full path to the image file
+  - `label`: Label value (0: Live, 1: Fake, 2: Soft, 3: Hard, 4: Uncertain, 5: Other)
+- `image_info.csv`: Stores image metrics with columns:
+  - `file_name`: Name of the image file
+  - `lens_score`: Numerical score for lens quality
+  - `focus`: Focus quality metric
+  - `visibility`: Visibility metric
 
 ## Project Structure
 
@@ -84,9 +100,10 @@ image-labeling-tool/
 │   ├── image_handler.py  # Image processing and navigation
 │   ├── ui_components.py  # UI implementation
 │   └── label_manager.py  # Label storage and management
-├── image_labels.csv      # Generated label storage
+├── image_labels.csv      # Label storage
+├── image_info.csv        # Image metrics storage
 ├── pyproject.toml        # Project dependencies
-└── README.md            # This file
+└── README.md             # This file
 ```
 
 ## Contributing
