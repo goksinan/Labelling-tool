@@ -106,7 +106,8 @@ class ImageLabelingApp:
             ("Soft", "2"),
             ("Hard", "3"),
             ("Uncertain", "4"),
-            ("Other", "5")
+            ("Bad", "5"),
+            ("Other", "6")
         ]
         
         for text, value in labels:
@@ -193,7 +194,8 @@ class ImageLabelingApp:
             "2 Label as Soft\n"
             "3 Label as Hard\n"
             "4 Label as Uncertain\n"
-            "5 Label as Other\n"
+            "5 Label as Bad\n"
+            "6 Label as Other\n"
             "O Show Original Image\n"
             "E Show Enhanced Image"
         )

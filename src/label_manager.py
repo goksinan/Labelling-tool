@@ -12,7 +12,8 @@ class LabelManager:
     # 2 for Soft
     # 3 for Hard
     # 4 for Uncertain
-    # 5 for Other
+    # 5 for Bad
+    # 6 for Other
     
     def __init__(self, csv_path: Union[str, Path]):
         """

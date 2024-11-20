@@ -13,6 +13,7 @@ class LabelingInterface:
         self.label_manager = label_manager
         self.current_photo = None  # Keep reference to prevent garbage collection
         self.label_var = tk.StringVar(value="0")  # Default to Live (0)
+        self.root.geometry("1200x900")
         self.setup_ui()
         self.bind_shortcuts()
         
@@ -139,14 +140,15 @@ class LabelingInterface:
         label_frame = ttk.LabelFrame(nav_frame, text="Image Label")
         label_frame.grid(row=0, column=1, padx=20)
         
-        # Add all four label options
+        # Add all label options
         labels = [
             ("Live (0)", "0"),
             ("Fake (1)", "1"),
             ("Soft (2)", "2"),
             ("Hard (3)", "3"),
             ("Uncertain (4)", "4"),
-            ("Other (5)", "5")
+            ("Bad (5)", "5"),
+            ("Other (6)", "6")
         ]
         
         for i, (text, value) in enumerate(labels):
@@ -184,6 +186,7 @@ class LabelingInterface:
         self.root.bind('3', lambda e: self.set_label("3"))
         self.root.bind('4', lambda e: self.set_label("4"))
         self.root.bind('5', lambda e: self.set_label("5"))
+        self.root.bind('6', lambda e: self.set_label("6"))
         
         self.root.bind('o', lambda e: self.show_original())
         self.root.bind('O', lambda e: self.show_original())
@@ -200,22 +203,25 @@ class LabelingInterface:
     def update_display(self, image: Optional[Image.Image] = None):
         """Update the UI with current image and label information."""
         if image:
-            # Convert PIL image to PhotoImage and keep reference
-            # Calculate scaling factor to fit in canvas
+            # Calculate scaling factor to fit in canvas with 50% increase
             canvas_width = self.canvas.winfo_width()
             canvas_height = self.canvas.winfo_height()
             
-            if canvas_width > 1 and canvas_height > 1:  # Ensure canvas has valid size
-                # Calculate scale factor to fit image in canvas
-                width_scale = canvas_width / image.width
-                height_scale = canvas_height / image.height
+            if canvas_width > 1 and canvas_height > 1:
+                # Calculate scale factor with 50% increase (multiply by 1.5)
+                width_scale = (canvas_width / image.width) * 1.5
+                height_scale = (canvas_height / image.height) * 1.5
                 scale_factor = min(width_scale, height_scale)
                 
-                # Scale image if necessary
+                # Only resize if the image would be too large
                 if scale_factor < 1:
                     new_width = int(image.width * scale_factor)
                     new_height = int(image.height * scale_factor)
-                    image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                else:
+                    # Apply 50% increase when image is smaller than canvas
+                    new_width = int(image.width * 1.5)
+                    new_height = int(image.height * 1.5)
+                image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
             
             self.current_photo = ImageTk.PhotoImage(image)
             

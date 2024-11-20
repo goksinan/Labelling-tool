@@ -11,7 +11,8 @@ A Python-based GUI application for efficiently labeling images. The tool provide
   - Soft (2)
   - Hard (3)
   - Uncertain (4)
-  - Other (5)
+  - Bad (5)
+  - Other (6)
 - Support for common image formats (jpg, jpeg, jp2, png, bmp, gif)
 - Image enhancement features:
   - Contrast adjustment
@@ -74,7 +75,8 @@ Labels are automatically saved to `image_labels.csv` in the project directory.
 - `2` Label as Soft
 - `3` Label as Hard
 - `4` Label as Uncertain
-- `5` Label as Other
+- `5` Label as Bad
+- `6` Label as Other
 - `O` Show Original image
 - `E` Show Enhanced image
 - `F` Show FFT visualization
@@ -84,7 +86,7 @@ Labels are automatically saved to `image_labels.csv` in the project directory.
 The tool uses two CSV files:
 - `image_labels.csv`: Stores image labels with columns:
   - `image_path`: Full path to the image file
-  - `label`: Label value (0: Live, 1: Fake, 2: Soft, 3: Hard, 4: Uncertain, 5: Other)
+  - `label`: Label value (0: Live, 1: Fake, 2: Soft, 3: Hard, 4: Uncertain, 5: Bad, 6: Other)
 - `image_info.csv`: Stores image metrics with columns:
   - `file_name`: Name of the image file
   - `lens_score`: Numerical score for lens quality
@@ -117,3 +119,30 @@ image-labeling-tool/
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Label Categories
+
+Images can be labeled with the following categories:
+
+- Live (0): Real, unmodified images
+- Fake (1): AI-generated or manipulated images
+- Soft (2): Soft/blurry images
+- Hard (3): Hard/sharp images
+- Uncertain (4): Images that are difficult to categorize
+- Bad (5): Poor quality or unusable images
+- Other (6): Images that don't fit other categories
+
+## Keyboard Shortcuts
+
+- Left Arrow: Previous image
+- Right Arrow: Next image
+- 0: Label as Live
+- 1: Label as Fake
+- 2: Label as Soft
+- 3: Label as Hard
+- 4: Label as Uncertain
+- 5: Label as Bad
+- 6: Label as Other
+- O: Show Original Image
+- E: Show Enhanced Image
+- F: Show FFT Visualization
